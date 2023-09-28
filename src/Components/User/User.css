@@ -1,0 +1,30 @@
+#home-bg-video {
+    top: 0;
+    width: 100vw;
+    height: 682px !important;
+    object-fit: cover;
+    z-index: 0;
+}
+
+#homediv{
+    overflow: hidden;
+    font-family: font;
+
+}
+
+.container { position:relative; }
+.container video {
+    position:relative;
+    z-index:0;
+}
+.overlay {
+    position:absolute;
+    top: 250px;
+    left: 350px;
+    color:white;
+    z-index:1;
+}
+
+#headline{
+    font-size: 45px;
+}
