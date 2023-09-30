@@ -1,0 +1,13 @@
+#value{
+    font-family: font;
+}
+
+thead th{
+    background-color: rgb(66, 1, 71)!important;
+    color: white!important;
+}
+
+tbody tr  td  {
+    background-color: aliceblue!important;
+    color: black!important;
+}

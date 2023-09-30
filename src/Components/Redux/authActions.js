@@ -1,34 +1,16 @@
 // authActions.js
-export const storeToken = (token) => ({
-    type: 'STORE_TOKEN',
-    payload: token,
-  });
+
+
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
+export const LOGOUT = 'LOGOUT';
+
+export const loginSuccess = (token, roleId ,userid) => ({ 
+  type: LOGIN_SUCCESS,
+  payload: { token, roleId ,userid},
+});
+
+export const logout = () => ({
+ 
+  type: LOGOUT,
   
-  export const removeToken = () => ({
-    type: 'REMOVE_TOKEN',
-  });
-  
-  // authReducer.js
-  const initialState = {
-    token: null,
-  };
-  
-  const authReducer = (state = initialState, action) => {
-    switch (action.type) {
-      case 'STORE_TOKEN':
-        return {
-          ...state,
-          token: action.payload,
-        };
-      case 'REMOVE_TOKEN':
-        return {
-          ...state,
-          token: null,
-        };
-      default:
-        return state;
-    }
-  };
-  
-  export default authReducer;
-  
+});

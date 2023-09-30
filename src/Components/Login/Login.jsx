@@ -1,47 +1,58 @@
-import React, {  useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import "./Login.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import './Login.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../Redux/authActions';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const Navigate = useNavigate();
   const dispatch = useDispatch();
 
-  
   const handleLogin = async () => {
     try {
-        const response = await axios.post("https://localhost:44365/api/Login/Users", {
-            email: email,
-            password: password,
-          });     
-          console.log("API Response:", response);
+      const response = await axios.post('https://localhost:44365/api/Login/Users', {
+        email: email,
+        password: password,
+      });
 
-      if (response.status === 200) {
-        const user = response.data; 
-        
-        console.log("user details " ,user);
-       
-        toast.success("Logged in Sucessfully!", {
-          icon:<CheckCircleIcon />,
+      if (response.status === 200 && response.data && response.data.roleid) {
+        const roleId = response.data.roleid;
+        const userToken = response.data.token;
+        const userid = response.data.userid;
+        const username = response.data.username;
+        console.log('user details', response.data);
+      
+        dispatch(loginSuccess(userToken, roleId ,userid)); 
+      
+        toast.success('Logged in Successfully!', {
+          icon: <CheckCircleIcon />,
         });
+      
+        localStorage.setItem('token', userToken);
+        localStorage.setItem('userid' ,userid);
+        localStorage.setItem('username' ,username);
         Navigate('/');
-      } else {
-        setError("Invalid email or password");
       }
+      
+       else {
+        setError('Invalid email or password');
+      }
+      
+      
     } catch (error) {
-      console.error("API request failed:", error);
-      setError("Invalid email or password");
+      console.error('API request failed:', error);
+      setError('Invalid email or password');
     }
   };
-  
+
   return (
     <div className="container m-5 p-5" id="reg">
       <section className="vh-75 ms-5">
@@ -70,7 +81,7 @@ const Login = () => {
                       <input
                         type="password"
                         id="form2Example19"
-                        
+
                         className="form-control form-control-lg"
                         onChange={(e) => setPassword(e.target.value)}
                       />
@@ -86,8 +97,8 @@ const Login = () => {
                       Login
                     </button>
                   </div>
-                  
-                 
+
+
                   <p className="small mb-5 pb-lg-2">
                     <a className="text-muted" href="#!">
                       Forgot password?
@@ -111,7 +122,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-      
+
       </section>
       <ToastContainer />
     </div>

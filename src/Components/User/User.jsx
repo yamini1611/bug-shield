@@ -6,7 +6,7 @@ const  Home =() =>
 {
 return(
     
-<div id="homediv" className="conatiner">
+<div id="homediv" className="conatiner-fluid">
 <video autoPlay loop muted  id="home-bg-video">
             <source src={video} type="video/mp4"></source>
         </video>
