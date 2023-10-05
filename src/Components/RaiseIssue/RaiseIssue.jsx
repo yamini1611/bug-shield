@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Button, Container } from "react-bootstrap";
-import '../RaiseIssue/RaiseIssue.css';
+import '../Styles/RaiseIssue.css';
 import email from '../Assets/Images/email.jpg';
 import { Modal } from "react-bootstrap";
 import AddIcon from '@mui/icons-material/Add';
@@ -55,6 +55,7 @@ export default RaiseIssue;
 
 export function Modaldetails(props) {
   const [details, setDetails] = useState('');
+  const email = localStorage.getItem('email');
 
   const handlepostquery = async () => {
     try {
@@ -106,9 +107,11 @@ export function Modaldetails(props) {
             <Input
               id="exampleEmail"
               name="email"
+              disabled
               placeholder="Enter your Email id"
               type="email"
               required
+              value={email}
             />
           </FormGroup>
           
