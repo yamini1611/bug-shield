@@ -46,13 +46,14 @@ const Login = () => {
         const username = response.data.username;
         const encryptedPassword = encryptPassword(response.data.password);
         const email = response.data.email;
-
+        const phone = response.data.phone;
+        const computerid = response.data.computerid;
         console.log('user details', response.data);
-        console.log(password);
         dispatch(loginSuccess(userToken, roleId ,userid)); 
-      
+        console.log(phone);
         toast.success('Logged in Successfully!', {
           icon: <CheckCircleIcon />,
+
         });
       
         localStorage.setItem('token', userToken);
@@ -60,7 +61,11 @@ const Login = () => {
         localStorage.setItem('username' ,username);
         localStorage.setItem('email' ,email);
         localStorage.setItem('password', encryptedPassword); 
+        localStorage.setItem('phone',phone);
+        localStorage.setItem('computerid' ,computerid);
+        window.location.reload();
         Navigate('/');
+
       }
       
        else {
@@ -75,77 +80,60 @@ const Login = () => {
   };
 
   return (
-    <div className="container" id="reg">
-      <section className="vh-75 ms-5">
-     
-          <div className="row">
-            <div className="col-md-5 col-sm-12 d-block text-black">
-              <div className="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
-                <form style={{ width: "23rem" }}>
-                  <h3 className="fw-normal mb-3 pb-3" style={{ letterSpacing: "" }}>
-                    SIGN IN
-                  </h3>
-                  <div className="form-outline mb-4">
-                    <div className="d-flex align-items-center">
-                      <label className="form-label me-5">Email </label>
-                      <input
-                        type="email"
-                        id="form2Example18"
-                        className="form-control form-control-lg"
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="form-outline mb-4">
-                    <div className="d-flex align-items-center">
-                      <label className="form-label me-3">Password </label>
-                      <input
-                        type="password"
-                        id="form2Example19"
-
-                        className="form-control form-control-lg"
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  {error && <p className="text-danger">{error}</p>}
-                  <div className="pt-1 mb-4">
-                    <button
-                      className="btn btn-info btn-lg btn-block"
-                      type="button"
-                      onClick={handleLogin}
-                    >
-                      Login
-                    </button>
-                  </div>
-
-
-                  <p className="small mb-5 pb-lg-2">
-                    {/* <a className="text-muted" href="#!">
-                      Forgot password?
-                    </a> */}
-                  </p>
-                  <p>
-                    Don't have an account?{" "}
-                    <Link to="/Register" className="link-info" id="link">
-                      Register here
-                    </Link>
-                  </p>
-                </form>
-              </div>
-            </div>
-            <div className="col-md-5 px-0 d-none d-xl-block ">
-              <img
-                src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7883.jpg?size=626&ext=jpg&ga=GA1.1.99625817.1684863857&semt=ais"
-                alt="Login"
-                className="w-100 vh-75 mt-0"
-              />
-            </div>
+<div className="container" id="reg">
+      <section className="d-flex justify-content-center align-items-center">
+        <div className="row">
+          {/* Image column */}
+          <div className="col-lg-7 d-none d-lg-block p-0">
+            <img
+src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7883.jpg?size=626&ext=jpg&ga=GA1.1.99625817.1684863857&semt=ais"              alt="Login"
+              className="w-100 img-fluid"
+            />
           </div>
-      
-
+          {/* Form column */}
+          <div className="col-lg-5 col-12 p-4">
+            <form>
+              <h3 className="fw-normal mb-3 pb-2">SIGN IN</h3>
+              <div className="mb-3">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  id="form2Example18"
+                  className="form-control"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  id="form2Example19"
+                  className="form-control"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {error && <p className="text-danger">{error}</p>}
+              <div className="mb-3">
+                <button
+                  className="btn btn-info btn-block"
+                  type="button"
+                  onClick={handleLogin}
+                >
+                  Login
+                </button>
+              </div>
+              <p>
+                Don't have an account?{' '}
+                <Link to="/Register" className="link-info" id="link">
+                  Register here
+                </Link>
+              </p>
+            </form>
+          </div>
+        </div>
       </section>
-      <ToastContainer    position="top-right"
+      <ToastContainer
+        position="top-right"
         autoClose={2000}
         hideProgressBar
         newestOnTop={false}
@@ -153,7 +141,8 @@ const Login = () => {
         rtl={false}
         pauseOnFocusLoss
         draggable
-        theme="dark"/>
+        theme="dark"
+      />
     </div>
   );
 };

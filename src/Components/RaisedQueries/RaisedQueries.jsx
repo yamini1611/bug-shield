@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Pagination } from 'react-bootstrap';
 import axios from 'axios';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import {
     Container,
     Button,
@@ -10,10 +12,10 @@ import {
     ModalFooter,
     FormGroup,
     Label,
-    Input
+    Input,
+    InputGroup
 } from 'reactstrap';
 import { ToastContainer, toast } from 'react-toastify';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 const RaisedQueries = () => {
     const [details, setDetails] = useState([]);
@@ -23,6 +25,9 @@ const RaisedQueries = () => {
     const [selectedQuery, setSelectedQuery] = useState(null);
     const userToken = localStorage.getItem('token');
     const [selectedQueryDetails, setSelectedQueryDetails] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [itemsPerPage] = useState(5);
 
     useEffect(() => {
         const allocatedQueryIds = JSON.parse(sessionStorage.getItem('allocatedQueryIds')) || [];
@@ -97,7 +102,7 @@ const RaisedQueries = () => {
                     console.log(user);
                     if (user) {
                         const toEmail = user.email;
-
+                        console.log("to email", toEmail);
                         await axios.post('https://localhost:44365/api/AllotedQueries/Email', {
                             fromEmail: fromEmail,
                             toEmail: toEmail,
@@ -172,44 +177,14 @@ const RaisedQueries = () => {
         fetchQueryDetails(query.queryDetails);
     };
 
-    const handleUpdateSAUser = async () => {
-        if (!selectedUserId) {
-            toast.error('Please select an SA user to update the query.');
-            return;
-        }
-    
-        if (!selectedQuery) {
-            toast.error('No query selected to update.');
-            return;
-        }
-    
-        const allotedQuery = {
-            SAuser: selectedUserId,
-            
-        };
-    
-        try {
-            const response = await axios.put(`https://localhost:44365/api/AllotedQueries/${selectedQuery.queryId}`, allotedQuery, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                },
-            });
-    
-            if (response.status === 200) {
-                toast.success('SA user updated for the query');
-                console.log(response);
 
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
     const handleAllocateTicket = (query) => {
         setSelectedQuery(query);
+        setCurrentPage(1);
         toggleInnerModal();
     };
 
-   
+
     const fetchQueryDetails = async (queryDetails) => {
         try {
             const response = await axios.get('https://localhost:44365/api/AllotedQueries', {
@@ -225,12 +200,42 @@ const RaisedQueries = () => {
             console.error(err);
         }
     };
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = details.slice(indexOfFirstItem, indexOfLastItem);
 
+    const paginate = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
+    const filteredItems = currentItems.filter((query) =>
+        query.queryDetails.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     return (
         <Container className='mt-5'>
-            <h3>Raised Queries</h3>
-            <Table striped bordered hover>
+            <h2>Raised Queries</h2>
+
+            {/* Search Input */}
+            <div className='d-flex mb-3'>
+                <h4>Search</h4>
+                <InputGroup className='ms-3 w-25'>
+                    <Input
+                 
+                        type='text'
+                        placeholder='Search by query details...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </InputGroup>
+                <Button
+                    onClick={() => setSearchQuery('')}
+                    className='btn-secondary ms-2'
+                >
+                    Clear
+                </Button>
+            </div>
+
+            <Table striped bordered hover responsive className='mb-5'>
                 <thead>
                     <tr>
                         <th>Query ID</th>
@@ -242,40 +247,63 @@ const RaisedQueries = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {details.map((query) => (
-                        <tr key={query.queryId}>
-                            <td>{query.queryId}</td>
-                            <td>{query.userId}</td>
-                            <td>{query.raisedTime}</td>
-                            <td>{query.solvedTime}</td>
-                            <td>{query.queryDetails}</td>
-                            <td>
-                                {query.isAllocated ? (
-                                    <>
-                                        <Button className='btn-dark me-2' disabled >
-                                            Alloted
-                                        </Button>
-                                        <Button className='btn-dark me-2' data-bs-toggle="modal" data-bs-target="#reallocate"  onClick={() => handleAllocateTicket(query)}>
-                                            Reallocate
-                                        </Button>
-                                        <Button className='btn-info' onClick={() => handleViewProgress(query)} data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                            View Progress
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <Button
-                                        className='btn-dark'
-                                        onClick={() => handleAllocateTicket(query)}
-                                    >
-                                        Allocate Ticket
-                                    </Button>
-                                )}
-                            </td>
+                    {filteredItems.length === 0 ? (
+                        <tr>
+                            <td colSpan="6">No data available</td>
                         </tr>
-                    ))}
+                    ) : (
+                        filteredItems.map((query) => (
+                            <tr key={query.queryId}>
+                                <td>{query.queryId}</td>
+                                <td>{query.userId}</td>
+                                <td>{query.raisedTime}</td>
+                                <td>{query.solvedTime}</td>
+                                <td>{query.queryDetails}</td>
+                                <td>
+                                    {query.isAllocated ? (
+                                        <>
+                                            <Button className='btn-dark me-2' disabled>
+                                                <AssignmentOutlinedIcon />
+                                            </Button>
+
+                                            <Button
+                                                className='btn-info'
+                                                onClick={() => handleViewProgress(query)}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#exampleModal"
+                                            >
+                                                <i className="fa-solid fa-expand"></i>
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            className='btn-dark'
+                                            onClick={() => handleAllocateTicket(query)}
+                                        >
+                                            Allocate Ticket
+                                        </Button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
+       
             </Table>
-            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+            <div className="d-flex justify-content-center">
+                <Pagination>
+                    {Array.from({ length: Math.ceil(details.length / itemsPerPage) }).map((_, index) => (
+                        <Pagination.Item
+                            key={index}
+                            active={index + 1 === currentPage}
+                            onClick={() => paginate(index + 1)}
+                        >
+                            {index + 1}
+                        </Pagination.Item>
+                    ))}
+                </Pagination>
+            </div>   <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -289,6 +317,7 @@ const RaisedQueries = () => {
                                     <p>Raised User: {selectedQueryDetails.raisedUser}</p>
                                     <p>Progress: {selectedQueryDetails.progress}</p>
                                     <p>Remarks: {selectedQueryDetails.remarks}</p>
+                                    <p>Assigned To:{selectedQueryDetails.sauser}</p>
                                     <p>Solving  Time:{selectedQueryDetails.solvedTime}</p>
                                 </div>
                             ) : (
@@ -301,41 +330,7 @@ const RaisedQueries = () => {
                     </div>
                 </div>
             </div>
-            {/* reallocate modal */}
-            <div class="modal fade" id="reallocate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <FormGroup>
-                                <Label for='userSelect'>Select a User:</Label>
-                                <Input
-                                    type='select'
-                                    name='userSelect'
-                                    id='userSelect'
-                                    onChange={(e) => setSelectedUserId(e.target.value)}
-                                >
-                                    <option value=''>Select a user</option>
-                                    {filteredUsers.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.username}
-                                        </option>
-                                    ))}
-                                </Input>
-                            </FormGroup>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <Button className='btn-dark' onClick={handleUpdateSAUser}>
-                                Reallocate Ticket
-                            </Button>                    
-                                </div>
-                    </div>
-                </div>
-            </div>
+
             {/* Inner Modal */}
             <Modal isOpen={innerModal} toggle={toggleInnerModal}>
                 <ModalHeader toggle={toggleInnerModal}>Select User</ModalHeader>

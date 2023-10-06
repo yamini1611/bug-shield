@@ -27,3 +27,7 @@ code {
 .custom-table {
   width: 80%; 
 }
+
+#raised{
+  overflow-x: hidden;
+}

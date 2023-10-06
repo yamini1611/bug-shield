@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
 import { Container, Table, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import { useTable, useGlobalFilter, usePagination } from 'react-table';
-
+import { ToastContainer, toast } from "react-toastify";
 const ComputerInfo = (args) => {
     const [computerinfo, setComputerInfo] = useState([]);
     const [editingComputerInfo, setEditingComputerInfo] = useState(null);
@@ -50,10 +50,7 @@ const ComputerInfo = (args) => {
                 Header: 'Model',
                 accessor: 'model',
             },
-            {
-                Header: 'Serial Number',
-                accessor: 'serialNumber',
-            },
+            
             {
                 Header: 'OS',
                 accessor: 'operatingSystem',
@@ -62,18 +59,7 @@ const ComputerInfo = (args) => {
                 Header: 'Installed RAM',
                 accessor: 'installedRamgb',
             },
-            {
-                Header: 'Processor',
-                accessor: 'processor',
-            },
-            {
-                Header: 'IP Address',
-                accessor: 'ipaddress',
-            },
-            {
-                Header: 'MAC Address',
-                accessor: 'macaddress',
-            },
+            
 
             {
                 Header: 'Location',
@@ -138,8 +124,6 @@ const ComputerInfo = (args) => {
                     },
                 }
             );
-
-
             if (response.status === 201) {
                 closeCreateModal();
                 setNewComputerInfo({
@@ -161,6 +145,7 @@ const ComputerInfo = (args) => {
             }
         } catch (error) {
             console.error(error);
+            toast.error(" All Fields are required");
         }
     };
 
@@ -176,7 +161,7 @@ const ComputerInfo = (args) => {
                 }
             );
 
-            if (response.status === 204) {
+            if (response.status === 200) {
                 closeEditModal();
                 fetchComputer();
             }
@@ -192,26 +177,64 @@ const ComputerInfo = (args) => {
     const cancelDelete = () => {
         setDeleteConfirmation(null);
     };
-
-    const handleDeleteComputerInfo = async (computerId) => {
+    const fetchComputerDetails = async (computerId) => {
         try {
-            const response = await axios.delete(
-                `https://localhost:44365/api/ComputerInfoes/${computerId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                    },
-                }
-            );
-
-            if (response.status === 204) {
-                setDeleteConfirmation(null);
-                fetchComputer();
+          const response = await axios.get(
+            `https://localhost:44365/api/ComputerInfoes/${computerId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${userToken}`,
+              },
             }
+          );
+      
+          if (response.status === 200) {
+            return response.data;
+          }
         } catch (error) {
-            console.error(error);
+          console.error("Error fetching computer details:", error);
+          throw error;
         }
-    };
+      };
+      
+      const handleDeleteComputerInfo = async (computerId) => {
+        try {
+          const computerDetails = await fetchComputerDetails(computerId);
+         console.log(computerDetails);
+          const backupResponse = await axios.post(
+            "https://localhost:44365/api/ComputerInfoes/PostBackUp",
+            computerDetails,
+            {
+              headers: {
+                Authorization: `Bearer ${userToken}`,
+              },
+            }
+          );
+      
+          if (backupResponse.status === 200) {
+            const deleteResponse = await axios.delete(
+              `https://localhost:44365/api/ComputerInfoes/${computerId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${userToken}`,
+                },
+              }
+            );
+      
+            if (deleteResponse.status === 200) {
+              toast.success("Deleted Successfully");
+              toast.success("posted in backup Computers");
+
+              setDeleteConfirmation(null);
+              fetchComputer();
+            }
+          }
+        } catch (error) {
+          toast.error("Error: " + error.message);
+          console.error(error);
+        }
+      };
+      
 
     return (
         <Container className="mt-5  pb-5">
@@ -229,7 +252,7 @@ const ComputerInfo = (args) => {
                     <i className="fa-solid fa-plus p-2"></i>
                 </button>
             </div>
-            <Table bordered className="me-5 justify-content-centercustom-table" id="tab" {...getTableProps()}>
+            <Table bordered responsive className=" justify-content-centercustom-table" {...getTableProps()}>
                 <thead>
                     {headerGroups.map((headerGroup) => (
                         <tr {...headerGroup.getHeaderGroupProps()} id="thead">
@@ -275,11 +298,11 @@ const ComputerInfo = (args) => {
             </Table>
             <div className="mb-3">
                 <button onClick={() => previousPage()} className="btn btn-warning me-3" disabled={!canPreviousPage}>
-                <i className="fa-solid fa-arrow-left"></i>  
+                    <i className="fa-solid fa-arrow-left"></i>
 
                 </button>
                 <button onClick={() => nextPage()} className="btn btn-danger" disabled={!canNextPage}>
-                <i className="fa-solid fa-arrow-right"></i>  
+                    <i className="fa-solid fa-arrow-right"></i>
                 </button>
                 <span className="ms-5">
                     Page{' '}
@@ -417,7 +440,7 @@ const ComputerInfo = (args) => {
                             <div>
                                 <Label>Purchase Date</Label>
                                 <Input
-                                    type="text"
+                                    type="date"
                                     value={newComputerInfo.purchaseDate}
                                     onChange={(e) =>
                                         setNewComputerInfo({
@@ -430,7 +453,7 @@ const ComputerInfo = (args) => {
                             <div>
                                 <Label>Warranty End Date</Label>
                                 <Input
-                                    type="text"
+                                    type="date"
                                     value={newComputerInfo.warrantyEndDate}
                                     onChange={(e) =>
                                         setNewComputerInfo({
@@ -468,8 +491,6 @@ const ComputerInfo = (args) => {
                             </div>
                         </div>
                     </div>
-
-
                 </ModalBody>
                 <ModalFooter>
                     <Button color="primary" onClick={handleCreateComputerInfo}>
@@ -695,6 +716,7 @@ const ComputerInfo = (args) => {
                     </Button>
                 </ModalFooter>
             </Modal>
+            <ToastContainer />
         </Container>
     );
 };

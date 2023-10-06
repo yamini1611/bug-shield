@@ -1,7 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { decryptPassword } from '../utilities/Utility';
 import 'react-toastify/dist/ReactToastify.css';
 import {
     Button,
@@ -12,8 +11,8 @@ import {
     Label,
     Table,
 } from 'reactstrap';
-import { Email } from '@mui/icons-material';
 
+//Alloted queries
 class AllotedQueries extends Component {
     username = localStorage.getItem('username');
     token = localStorage.getItem('token');
@@ -25,6 +24,9 @@ class AllotedQueries extends Component {
             progress: '',
             solvedTime: '',
             remarks: '',
+            raisedUser: '',
+            Query: '',
+            Solvedby: '',
         },
         editedQueryId: null,
     };
@@ -33,9 +35,8 @@ class AllotedQueries extends Component {
     };
     componentDidMount() {
         this.fetchAllotedQueries();
-
         const acceptedQueries =
-            JSON.parse(sessionStorage.getItem('acceptedQueries')) || {};
+        JSON.parse(sessionStorage.getItem('acceptedQueries')) || {};
         this.setState({ acceptedQueries });
     }
 
@@ -77,8 +78,10 @@ class AllotedQueries extends Component {
             const toEmail = userResponse.data.email;
             const SolvedTime = query.SolvedTime;
             console.log(toEmail);
-            toast.success('Email is sending ....');
-
+            toast.success('Email is sending ....', {
+                icon: <i class="fa-solid fa-spinner fa-spin" style={{color:"red"}}></i>,
+      
+              });
             const response = await axios.post(
                 'https://localhost:44365/api/AllotedQueries/SendEmail',
                 {
@@ -122,20 +125,24 @@ class AllotedQueries extends Component {
     openEditModal = (query) => {
         console.log(query);
         const Query = query.allotedQueries;
-        localStorage.setItem('Query' ,Query);
+        localStorage.setItem('Query', Query);
         const SolvedTime = query.solvedTime;
-        localStorage.setItem('SolvedTime' ,SolvedTime);
-        const ToEmail  = query.raisedUser;
-        localStorage.setItem('ToEmail' ,ToEmail);
+        localStorage.setItem('SolvedTime', SolvedTime);
+        const ToEmail = query.raisedUser;
+        localStorage.setItem('ToEmail', ToEmail);
         const Progress = query.progress;
-        localStorage.setItem('progress' ,Progress);
-
+        localStorage.setItem('progress', Progress);
+        const solvedby = query.sauser;
+        localStorage.setItem('solvedby', solvedby);
         this.setState({
             isEditing: true,
             editedQuery: {
                 progress: query.progress,
                 solvedTime: query.solvedTime || '',
                 remarks: query.remarks,
+                allotedQueries: query.allotedQueries,
+                raisedUser: query.raisedUser,
+                sauser: query.sauser,
             },
             editedQueryId: query.alotid,
         });
@@ -155,10 +162,22 @@ class AllotedQueries extends Component {
             },
         }));
     };
-
     handleEditSubmit = async () => {
         const { editedQuery, editedQueryId } = this.state;
         const { token } = this;
+
+        const response = await axios.put(
+            `https://localhost:44365/api/AllotedQueries/${editedQueryId}`,
+            editedQuery,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+
+        );
+
 
         const SendEmail = async () => {
             try {
@@ -167,15 +186,15 @@ class AllotedQueries extends Component {
                         Authorization: `Bearer ${this.token}`,
                     },
                 });
-        
+
                 if (res.status === 200) {
                     const EmailTo = localStorage.getItem('ToEmail');
                     const userData = res.data;
                     console.log("Email to ", EmailTo);
-        
+
                     const matchingUser = userData.find(user => user.userid.toString() === EmailTo);
                     console.log("matched user", matchingUser);
-        
+
                     if (matchingUser) {
                         const ToEmailvalue = matchingUser.email;
                         console.log('ToEmailvalue:', ToEmailvalue);
@@ -191,7 +210,7 @@ class AllotedQueries extends Component {
                 const Query = localStorage.getItem('Query');
                 const solvedTime = localStorage.getItem('SolvedTime');
                 const progress = localStorage.getItem('progress');
-        
+
                 await axios.post('https://localhost:44365/api/AllotedQueries/EmailToUser', {
                     fromEmail: fromEmail,
                     toEmail: ToEmail,
@@ -205,14 +224,13 @@ class AllotedQueries extends Component {
                         'Content-Type': 'application/json',
                     },
                 });
-        
-                toast.success("Email sent Successfully tu user");
+                toast.success("Email sent Successfully to user");
                 SendEmailToAdmin();
             } catch (err) {
                 console.error('Error fetching user data or sending email:', err);
             }
         };
-        
+
         const SendEmailToAdmin = async () => {
             const fromEmail = localStorage.getItem('email');
             const storedPassword = localStorage.getItem('password');
@@ -223,57 +241,108 @@ class AllotedQueries extends Component {
             try {
                 await axios.post('https://localhost:44365/api/AllotedQueries/EmailToAdmin', {
                     fromEmail: fromEmail,
-                    password:decryptedPassword,
-                    query :Query,
-                    solvedTime:solvedTime,
-                    progress:progress
+                    password: decryptedPassword,
+                    query: Query,
+                    solvedTime: solvedTime,
+                    progress: progress
                 }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-
                 });
                 toast.success("Email sent Successfully to Admin");
-                
-            }
-
-
-            catch (err) {
+            } catch (err) {
                 console.error('Error fetching user data or sending email:', err);
             }
         };
-        try {
-            const response = await axios.put(
-                `https://localhost:44365/api/AllotedQueries/${editedQueryId}`,
-                editedQuery,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
 
-            if (response.status === 200) {
-                toast.success('Query updated successfully');
-                SendEmail();
-               
-                this.closeEditModal();
-                this.fetchAllotedQueries();
+        if (response.status === 200) {
+            toast.success("Query Updated Successfully");
+            this.fetchAllotedQueries();
+            SendEmail();
+
+            if (editedQuery.progress === 'Completed') {
+                const Query = localStorage.getItem('Query');
+                const solvedby = localStorage.getItem('solvedby');
+                const errorLog = {
+                    userId: editedQuery.raisedUser,
+                    query: Query,
+                    solvedby: solvedby
+                };
+
+                const errorLogResponse = await axios.post(
+                    'https://localhost:44365/api/ErrorLogs',
+                    errorLog,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (errorLogResponse.status === 200) {
+                    toast.success('Error logged successfully');
+
+                    const queriesResponse = await axios.get('https://localhost:44365/api/Queries', {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (queriesResponse.status === 200 && Array.isArray(queriesResponse.data)) {
+                        console.log("queriesResponse.data:", queriesResponse.data);
+
+                        for (const query of queriesResponse.data) {
+                            if (query.queryDetails === Query) {
+                                await axios.delete(
+                                    `https://localhost:44365/api/Queries/${query.queryId}`,
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${token}`,
+                                            'Content-Type': 'application/json',
+                                        },
+                                    }
+                                );
+                                console.log('Query deleted from QUERIES API');
+                                break;
+                            }
+                        }
+
+                        await axios.delete(
+                            `https://localhost:44365/api/AllotedQueries/${editedQueryId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    'Content-Type': 'application/json',
+                                },
+                            }
+                        );
+                    } else {
+                        console.log('Error fetching queries data.');
+                    }
+
+                    this.closeEditModal();
+                    this.fetchAllotedQueries();
+                } else {
+                    toast.error('Error updating query');
+                }
+
             }
-        } catch (error) {
-            console.error(error);
-            toast.error('Error updating query');
+
         }
     };
+
+
 
     render() {
         const { allotedQueries, acceptedQueries } = this.state;
         return (
             <Container className='mt-5 pb-5 mb-5 w-100'>
                 <h3>Alloted Queries</h3>
-                <Table striped bordered hover className='mb-5'>
+                <Table striped bordered hover responsive className='mb-5'>
                     <thead>
                         <tr className='text-light'>
                             <th>Query ID</th>
@@ -395,6 +464,43 @@ class AllotedQueries extends Component {
                                             value={this.state.editedQuery.remarks}
                                             onChange={this.handleEditFieldChange}
                                         />
+
+                                    </FormGroup>
+                                    <FormGroup className='d-none'>
+                                        <Label for='Raiseduser'>Raised user
+                                        </Label>
+                                        <Input
+                                            type='text'
+                                            name='raisedUser'
+                                            id='raiseduser'
+                                            value={this.state.editedQuery.raisedUser}
+                                            onChange={this.handleEditFieldChange}
+                                        />
+
+                                    </FormGroup>
+                                    <FormGroup className='d-none'>
+                                        <Label for='Q'>Solved by
+                                        </Label>
+                                        <Input
+                                            type='text'
+                                            name='Solvedby'
+                                            id='raiseduser'
+                                            value={this.state.editedQuery.Solvedby}
+                                            onChange={this.handleEditFieldChange}
+                                        />
+
+                                    </FormGroup>
+                                    <FormGroup className='d-none'>
+                                        <Label for='Raiseduser'>Raised user
+                                        </Label>
+                                        <Input
+                                            type='text'
+                                            name='Query'
+                                            id='query'
+                                            value={this.state.editedQuery.Query}
+                                            onChange={this.handleEditFieldChange}
+                                        />
+
 
                                     </FormGroup>
                                 </Form>

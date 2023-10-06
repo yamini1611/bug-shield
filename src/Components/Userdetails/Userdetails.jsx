@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Table, Input, Label, Form } from "reactstrap";
 import { useTable, useGlobalFilter, usePagination } from 'react-table';
 import { ToastContainer, toast } from "react-toastify";
+
 const Userdetails = () => {
   const [users, setUsers] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -15,6 +16,8 @@ const Userdetails = () => {
   const [selectedComputerId, setSelectedComputerId] = useState("");
   const [editingUserId, setEditingUserId] = useState(null);
   const userToken = localStorage.getItem('token');
+  const [deletedUserDetails, setDeletedUserDetails] = useState(null);
+  
   const [editedUser, setEditedUser] = useState({
     username: "",
     password: "",
@@ -126,15 +129,17 @@ const Userdetails = () => {
       if (response.status === 200) {
         toast.success('User created successfully!');
         setIsCreateModalOpen(false);
+        setcreateUser("");
         fetchDetails();
       } else {
         console.error('Failed to create user. Status code: ' + response.status);
       }
     } catch (error) {
+      toast.error("All fields are required");
       console.error('Error creating user:', error);
     }
   };
-
+ 
   const handleSaveEdit = async (userId) => {
     try {
       const response = await axios.put(`https://localhost:44365/api/Users/details/${userId}`, {
@@ -154,26 +159,63 @@ const Userdetails = () => {
         console.error('Failed to update user details. Status code: ' + response.status);
       }
     } catch (error) {
+      toast.error("Validation Error");
       console.error('Error updating user details:', error);
     }
   };
-
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        const response = await axios.delete(`https://localhost:44365/api/Users/${userId}`);
-
-        if (response.status === 204) {
-          alert("User deleted successfully");
-          fetchDetails();
-        } else {
-          console.error("Failed to delete user. Status code: " + response.status);
-        }
-      } catch (error) {
-        console.error("Error deleting user:", error);
-      }
+ 
+ 
+const fetchDeletedUserDetails = async (userId) => {
+  try {
+    const response = await axios.get(`https://localhost:44365/api/Users/${userId}`);
+    console.log(response.data);
+    const username = response.data.username;
+    const email = response.data.email;
+    const phone = response.data.phone;
+    const roleId = response.data.roleid;
+    const deletedUserDetails ={
+      username:username,
+      email:email,
+      phone:phone,
+      roleId:roleId,
     }
-  };
+    console.log(deletedUserDetails);
+
+    const postResponse = await axios.post('https://localhost:44365/api/Users/PostResigned', deletedUserDetails,
+    {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+    },
+    });
+
+    if (postResponse.status === 200) {
+      toast.success("Deleted user posted as Resigned User successfully");
+    } else {
+      console.error("Failed to post deleted user details as Resigned User.");
+    }
+  } catch (error) {
+    console.error("Error fetching or posting user details:", error);
+  }
+};
+
+const handleDeleteUser = async (userId) => {
+  if (window.confirm("Are you sure you want to delete this user?")) {
+    try {
+      fetchDeletedUserDetails(userId);
+      const response = await axios.delete(`https://localhost:44365/api/Users/${userId}`);
+
+      if (response.status === 200) {
+        toast.success("User deleted Successfully")
+        fetchDetails();
+      } else {
+        console.error("Failed to delete user. Status code: " + response.status);
+      }
+    } catch (error) {
+      toast.error("you can't delete a user who has raised query");
+      console.error("Error deleting user:", error);
+    }
+  }
+};
 
   const data = useMemo(() => users, [users]);
 
@@ -209,10 +251,10 @@ const Userdetails = () => {
         Cell: ({ row }) => (
           <div>
             <button className="ms-2 btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit" onClick={() => handleEditUser(row.original)}>
-              <i class="fa-solid fa-user-pen"></i>
+              <i className="fa-solid fa-user-pen"></i>
             </button>
             <button className="ms-2 btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete" onClick={() => handleDeleteUser(row.original.userid)}>
-              <i class="fa-solid fa-trash-can"></i>
+              <i className="fa-solid fa-trash-can"></i>
             </button>
           </div>
         ),
@@ -269,13 +311,13 @@ const Userdetails = () => {
         </div>
         <div className="d-flex">
           <h5 className="me-3">Add User</h5> <button className="btn btn-dark" onClick={handleCreateUser}>
-            <i class="fa-solid fa-user-plus"></i>
+            <i className="fa-solid fa-user-plus"></i>
           </button>
 
         </div>
       </div>
 
-      <Table bordered className="responsive" {...getTableProps()}>
+      <Table bordered responsive className="responsive" {...getTableProps()}>
         <thead>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()} id="thead">
@@ -303,10 +345,10 @@ const Userdetails = () => {
 
       <div className="mb-5">
         <button onClick={() => previousPage()} className="btn btn-warning me-3" disabled={!canPreviousPage}>
-          <i class="fa-solid fa-arrow-left"></i>
+          <i className="fa-solid fa-arrow-left"></i>
         </button>
         <button onClick={() => nextPage()} className="btn btn-danger" disabled={!canNextPage}>
-          <i class="fa-solid fa-arrow-right"></i>        </button>
+          <i className="fa-solid fa-arrow-right"></i>        </button>
         <span className="ms-5">
           Page{' '}
           <strong>
@@ -332,7 +374,7 @@ const Userdetails = () => {
                 onChange={(e) => setEditedUser({ ...editedUser, username: e.target.value })}
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-3 d-none">
               <label htmlFor="editPassword" className="form-label">
                 Password
               </label>
@@ -349,6 +391,7 @@ const Userdetails = () => {
               <label htmlFor="editComputerId" className="form-label">
                 Computer ID
               </label>
+
               <input
                 required
                 min="1"
@@ -521,9 +564,12 @@ const Userdetails = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      
       <ToastContainer />
     </Container>
   );
 };
 
 export default Userdetails;
+

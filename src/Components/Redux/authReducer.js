@@ -1,5 +1,5 @@
 import { LOGIN_SUCCESS, LOGOUT } from "./authActions";
-import { ALLOCATE_QUERY ,INIT_ALLOCATED_QUERY } from './authActions';
+import { ALLOCATE_QUERY, SET_SUCCESS_MESSAGE ,INIT_ALLOCATED_QUERY } from './authActions';
 
 const initialState = {
   token: localStorage.getItem('token') || null,
@@ -24,16 +24,9 @@ const authReducer = (state = initialState, action) => {
       };
 
     case LOGOUT:
-      localStorage.removeItem('token');
-      localStorage.removeItem('email');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userid');
-     
-      localStorage.removeItem('roleId'); 
-      localStorage.removeItem('password');
+      localStorage.clear(); 
       sessionStorage.removeItem('roleId'); 
       sessionStorage.removeItem('userid');
-      
       return {
         
         ...state,
@@ -55,7 +48,11 @@ const authReducer = (state = initialState, action) => {
         };
       
   
-     
+      case SET_SUCCESS_MESSAGE:
+        return {
+          ...state,
+          successMessage: action.payload,
+        };
 
     default:
       return state;

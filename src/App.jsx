@@ -14,12 +14,12 @@ import { loginSuccess, initAllocatedQuery } from './Components/Redux/authActions
 import { useSelector } from 'react-redux';
 import RaisedQueries from './Components/RaisedQueries/RaisedQueries';
 import AllotedQueries from './Components/AllotedQuery/AllotedQuery';
-import { Computer } from '@mui/icons-material';
 import ComputerInfo from './Components/ComputerInfo/ComputerInfo';
 import Footer from './Components/Footer/Footer';
 import RaisedQueriesUser from './Components/RaisedQueryUser/RaisedQueryuser';
-
+import Errorlog from './Components/Error Log/Errorlog';
 function App() {
+  
   const dispatch = useDispatch();
   const roleId = useSelector((state) => state.auth.roleId);
   useEffect(() => {
@@ -49,6 +49,7 @@ function App() {
           <Route path="/RaisedQueries" element={<RaisedQueries/>} />
           <Route path='/SATeamDashboard' element={<AllotedQueries/>}/>
           <Route path='/ComputerInfo' element={<ComputerInfo />} />
+          <Route path='/Errorlog' element={<Errorlog />} />
         </Routes>
         <Footer />
       </div>
