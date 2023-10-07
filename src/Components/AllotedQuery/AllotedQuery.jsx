@@ -2,15 +2,7 @@ import axios from 'axios';
 import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {
-    Button,
-    Container,
-    Form,
-    FormGroup,
-    Input,
-    Label,
-    Table,
-} from 'reactstrap';
+import { Button, Container, Form, FormGroup, Input, Label, Table } from 'reactstrap';
 
 //Alloted queries
 class AllotedQueries extends Component {
@@ -30,13 +22,14 @@ class AllotedQueries extends Component {
         },
         editedQueryId: null,
     };
+
     decryptPassword = (encryptedPassword) => {
         return encryptedPassword.split('').reverse().join('');
     };
     componentDidMount() {
         this.fetchAllotedQueries();
         const acceptedQueries =
-        JSON.parse(sessionStorage.getItem('acceptedQueries')) || {};
+            JSON.parse(sessionStorage.getItem('acceptedQueries')) || {};
         this.setState({ acceptedQueries });
     }
 
@@ -47,12 +40,10 @@ class AllotedQueries extends Component {
                     Authorization: `Bearer ${this.token}`,
                 },
             });
-
             const { data } = response;
             const filteredQueries = data.filter(
                 (query) => query.sauser === this.username
             );
-
             this.setState({
                 allotedQueries: filteredQueries,
             });
@@ -60,6 +51,8 @@ class AllotedQueries extends Component {
             console.error(error);
         }
     }
+
+    //accept button
     acceptButtonClickHandler = async (query) => {
         const fromEmail = localStorage.getItem('email');
         const queryDetails = query.allotedQueries;
@@ -74,14 +67,13 @@ class AllotedQueries extends Component {
                     },
                 }
             );
-
             const toEmail = userResponse.data.email;
             const SolvedTime = query.SolvedTime;
             console.log(toEmail);
             toast.success('Email is sending ....', {
-                icon: <i class="fa-solid fa-spinner fa-spin" style={{color:"red"}}></i>,
-      
-              });
+                icon: <i className="fa-solid fa-spinner fa-spin" style={{ color: "red" }}></i>,
+
+            });
             const response = await axios.post(
                 'https://localhost:44365/api/AllotedQueries/SendEmail',
                 {
@@ -147,8 +139,6 @@ class AllotedQueries extends Component {
             editedQueryId: query.alotid,
         });
     };
-
-
     closeEditModal = () => {
         this.setState({ isEditing: false });
     };
@@ -175,10 +165,9 @@ class AllotedQueries extends Component {
                     'Content-Type': 'application/json',
                 },
             }
-
         );
 
-
+        //email to user
         const SendEmail = async () => {
             try {
                 const res = await axios.get('https://localhost:44365/api/Users', {
@@ -191,7 +180,6 @@ class AllotedQueries extends Component {
                     const EmailTo = localStorage.getItem('ToEmail');
                     const userData = res.data;
                     console.log("Email to ", EmailTo);
-
                     const matchingUser = userData.find(user => user.userid.toString() === EmailTo);
                     console.log("matched user", matchingUser);
 
@@ -230,7 +218,7 @@ class AllotedQueries extends Component {
                 console.error('Error fetching user data or sending email:', err);
             }
         };
-
+        //email to admin
         const SendEmailToAdmin = async () => {
             const fromEmail = localStorage.getItem('email');
             const storedPassword = localStorage.getItem('password');
@@ -256,7 +244,6 @@ class AllotedQueries extends Component {
                 console.error('Error fetching user data or sending email:', err);
             }
         };
-
         if (response.status === 200) {
             toast.success("Query Updated Successfully");
             this.fetchAllotedQueries();
@@ -329,13 +316,9 @@ class AllotedQueries extends Component {
                 } else {
                     toast.error('Error updating query');
                 }
-
             }
-
         }
     };
-
-
 
     render() {
         const { allotedQueries, acceptedQueries } = this.state;
@@ -454,6 +437,7 @@ class AllotedQueries extends Component {
                                             onChange={this.handleEditFieldChange}
                                         />
                                     </FormGroup>
+
                                     <FormGroup>
                                         <Label for='Remarks'>Remarks
                                         </Label>
@@ -464,8 +448,8 @@ class AllotedQueries extends Component {
                                             value={this.state.editedQuery.remarks}
                                             onChange={this.handleEditFieldChange}
                                         />
-
                                     </FormGroup>
+
                                     <FormGroup className='d-none'>
                                         <Label for='Raiseduser'>Raised user
                                         </Label>
@@ -476,8 +460,8 @@ class AllotedQueries extends Component {
                                             value={this.state.editedQuery.raisedUser}
                                             onChange={this.handleEditFieldChange}
                                         />
-
                                     </FormGroup>
+
                                     <FormGroup className='d-none'>
                                         <Label for='Q'>Solved by
                                         </Label>
@@ -488,8 +472,8 @@ class AllotedQueries extends Component {
                                             value={this.state.editedQuery.Solvedby}
                                             onChange={this.handleEditFieldChange}
                                         />
-
                                     </FormGroup>
+
                                     <FormGroup className='d-none'>
                                         <Label for='Raiseduser'>Raised user
                                         </Label>
@@ -500,8 +484,6 @@ class AllotedQueries extends Component {
                                             value={this.state.editedQuery.Query}
                                             onChange={this.handleEditFieldChange}
                                         />
-
-
                                     </FormGroup>
                                 </Form>
                             </div>
@@ -521,7 +503,6 @@ class AllotedQueries extends Component {
                         </div>
                     </div>
                 </div>
-
                 <ToastContainer />
             </Container>
         );

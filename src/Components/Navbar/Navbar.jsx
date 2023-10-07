@@ -1,22 +1,17 @@
+import axios from "axios";
 import React, { useState } from "react";
-import { Button } from "reactstrap";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import {
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem,
-} from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "../Styles/Navbar.css";
+import { Button, Dropdown, DropdownToggle } from "reactstrap";
 import { logout } from "../Redux/authActions";
-import Modal from "react-bootstrap/Modal";
-import Form from "react-bootstrap/Form";
-import axios from "axios";
+import "../Styles/Navbar.css";
 import { decryptPassword } from "../utilities/Utility";
+
 const Navbarjsx = () => {
     const roleId = useSelector((state) => state.auth.roleId);
     const isAuthenticated = useSelector((state) => state.auth.token !== null);
@@ -30,14 +25,8 @@ const Navbarjsx = () => {
     console.log(decryptedPassword);
     const email = localStorage.getItem('email');
     const computerId = localStorage.getItem('computerid');
-    const handleLogout = () => {
-        navigate('/Login');
-        toast.success("Logged out Successfully");
-        dispatch(logout());
-    };
-
+    const role = sessionStorage.getItem('roleId');
     console.log("RoleId from Redux Store:", roleId);
-
     const [showModal, setShowModal] = useState(false);
     const [userDetails, setUserDetails] = useState({
         username: username,
@@ -47,10 +36,16 @@ const Navbarjsx = () => {
         computerid: computerId,
         roleId: roleId,
     });
-
+    const handleLogout = () => {
+        navigate('/Login');
+        toast.success("Logged out Successfully",
+            {
+                position: 'top-center'
+            });
+        dispatch(logout());
+    };
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUserDetails({ ...userDetails, [name]: value });
@@ -88,8 +83,7 @@ const Navbarjsx = () => {
                 </Navbar.Toggle>
                 <Navbar.Collapse id="basic-navbar-nav" className="text-start">
                     <Nav className="me-auto">
-
-                        {roleId === '1' && (
+                        {role === '1' && (
                             <>
                                 <Link id="link" to="/Userdetails">
                                     <h5 className="ms-3">Users </h5>
@@ -104,24 +98,17 @@ const Navbarjsx = () => {
                                 </Link>
                                 <Link id="link" to='/Errorlog'>
                                     <h5 className="ms-3">Error Log</h5>
-
                                 </Link>
                             </>
-
                         )}
-
-                        {roleId === '2' && (
+                        {role === '2' && (
                             <>
                                 <Link id="link" to="/SATeamDashboard">
                                     <h5 className="ms-3">Alloted Queries</h5>
                                 </Link>
-
-
                             </>
-
                         )}
-
-                        {roleId === '3' && (
+                        {role === '3' && (
                             <>
                                 <Link id="link" to="/RaiseIssue">
                                     <h5 className="ms-3">Raise Issue</h5>
@@ -130,9 +117,7 @@ const Navbarjsx = () => {
                                     <h5 className="ms-3">Raised Issue</h5>
                                 </Link>
                             </>
-
                         )}
-
 
                     </Nav>
                     <Nav>
@@ -151,15 +136,11 @@ const Navbarjsx = () => {
                                             {username}
                                         </h4>
                                     </DropdownToggle>
-
-                                    
                                 </Dropdown>
 
                                 <Link id="link" to="/Login" onClick={handleLogout}>
                                     <h5 className="ms-3 mt-3">Logout</h5>
                                 </Link>
-
-
                             </>
                         ) : (
                             <>
@@ -227,7 +208,7 @@ const Navbarjsx = () => {
                                 onChange={handleChange}
                             />
                         </Form.Group>
-                        <Form.Group  className="d-none" controlId="roleid">
+                        <Form.Group className="d-none" controlId="roleid">
                             <Form.Label>Role ID</Form.Label>
                             <Form.Control
                                 type="number"
@@ -239,7 +220,7 @@ const Navbarjsx = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button  className="btn-warning" onClick={handleClose}>
+                    <Button className="btn-warning" onClick={handleClose}>
                         Close
                     </Button>
                     <Button className="btn-danger" onClick={handleSaveChanges}>

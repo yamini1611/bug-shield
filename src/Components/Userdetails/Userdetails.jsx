@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Table, Input, Label, Form } from "reactstrap";
-import { useTable, useGlobalFilter, usePagination } from 'react-table';
+import { useGlobalFilter, usePagination, useTable } from 'react-table';
 import { ToastContainer, toast } from "react-toastify";
+import { Button, Container, Form, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Table } from "reactstrap";
 
 const Userdetails = () => {
   const [users, setUsers] = useState([]);
@@ -16,7 +16,6 @@ const Userdetails = () => {
   const [selectedComputerId, setSelectedComputerId] = useState("");
   const [editingUserId, setEditingUserId] = useState(null);
   const userToken = localStorage.getItem('token');
-  const [deletedUserDetails, setDeletedUserDetails] = useState(null);
   
   const [editedUser, setEditedUser] = useState({
     username: "",
@@ -46,8 +45,6 @@ const Userdetails = () => {
     { label: "SA Team", value: 2 },
     { label: "Users", value: 3 },
   ];
-
-
   const fetchUnassignedComputerIds = async () => {
     try {
       const computerInfoResponse = await axios.get('https://localhost:44365/api/ComputerInfoes');
@@ -70,8 +67,6 @@ const Userdetails = () => {
       console.error("Error fetching unassigned computer IDs:", error);
     }
   };
-
-
   const fetchRoles = async () => {
     try {
       const response = await axios.get('https://localhost:44365/api/Roles', {
@@ -85,8 +80,6 @@ const Userdetails = () => {
       console.error("Error fetching roles:", error);
     }
   };
-
-
 
   const handleEditUser = (user) => {
     setIsEditModalOpen(true);
@@ -163,7 +156,6 @@ const Userdetails = () => {
       console.error('Error updating user details:', error);
     }
   };
- 
  
 const fetchDeletedUserDetails = async (userId) => {
   try {
@@ -270,14 +262,11 @@ const handleDeleteUser = async (userId) => {
     prepareRow,
     page,
     state: { pageIndex, globalFilter },
-    pageCount,
     canPreviousPage,
     canNextPage,
     nextPage,
     pageOptions,
-    rows,
     previousPage,
-    setPageSize,
     setGlobalFilter,
   } = useTable(
     {
@@ -564,8 +553,6 @@ const handleDeleteUser = async (userId) => {
           </Button>
         </ModalFooter>
       </Modal>
-
-      
       <ToastContainer />
     </Container>
   );

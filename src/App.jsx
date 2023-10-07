@@ -18,8 +18,8 @@ import ComputerInfo from './Components/ComputerInfo/ComputerInfo';
 import Footer from './Components/Footer/Footer';
 import RaisedQueriesUser from './Components/RaisedQueryUser/RaisedQueryuser';
 import Errorlog from './Components/Error Log/Errorlog';
+
 function App() {
-  
   const dispatch = useDispatch();
   const roleId = useSelector((state) => state.auth.roleId);
   useEffect(() => {
@@ -39,7 +39,6 @@ function App() {
       <div className="App">
         <Navbarjsx />
         <Routes>
-          
           <Route path="/" element={<Home />} />
           <Route path='/Raisedquerybyuser' element={<RaisedQueriesUser />}></Route>
           <Route path="/RaiseIssue" element={<RaiseIssue />} />

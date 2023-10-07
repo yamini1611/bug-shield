@@ -32,7 +32,6 @@ const RaisedQueriesUser = () => {
       setLoading(false);
     }
   }
-
   return (
     <div id="raised" className="container">
     {loading && <h4 className="mt-5 text-center">Raised Query has not been Allotted to SA Team</h4>}
@@ -56,7 +55,6 @@ const RaisedQueriesUser = () => {
     {!loading && !error && (
       <div className="p-5">
         <h1 className="pt-5 text-center">Raised Queries</h1>
-  
         <Table bordered responsive>
           <thead>
             <tr>
@@ -78,7 +76,6 @@ const RaisedQueriesUser = () => {
       </div>
     )}
   </div>
-  
   );
 };
 

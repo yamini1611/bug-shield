@@ -15,7 +15,7 @@ const Login = () => {
   const [error, setError] = useState(null);
   const Navigate = useNavigate();
   const dispatch = useDispatch();
-
+  
   const encryptPassword = (password) => {
     return password.split('').reverse().join('');
   };
@@ -38,7 +38,6 @@ const Login = () => {
         email: email,
         password: password,
       });
-
       if (response.status === 200 && response.data && response.data.roleid) {
         const roleId = response.data.roleid;
         const userToken = response.data.token;
@@ -51,11 +50,7 @@ const Login = () => {
         console.log('user details', response.data);
         dispatch(loginSuccess(userToken, roleId ,userid)); 
         console.log(phone);
-        toast.success('Logged in Successfully!', {
-          icon: <CheckCircleIcon />,
-
-        });
-      
+        
         localStorage.setItem('token', userToken);
         localStorage.setItem('userid' ,userid);
         localStorage.setItem('username' ,username);
@@ -63,22 +58,20 @@ const Login = () => {
         localStorage.setItem('password', encryptedPassword); 
         localStorage.setItem('phone',phone);
         localStorage.setItem('computerid' ,computerid);
-        window.location.reload();
         Navigate('/');
-
+        toast.success('Logged in Successfully!', {
+          icon: <CheckCircleIcon />,
+        });
       }
       
        else {
         setError('Invalid email or password');
-      }
-      
-      
+      }    
     } catch (error) {
       console.error('API request failed:', error);
       setError('Invalid email or password');
     }
   };
-
   return (
 <div className="container" id="reg">
       <section className="d-flex justify-content-center align-items-center">

@@ -104,7 +104,6 @@ const Register = () => {
               <p className="text-danger">{formik.errors.email}</p>
             )}
           </div>
-  
           <div className="mb-3">
             <Label>Password</Label>
             <Input
@@ -134,7 +133,6 @@ const Register = () => {
               <p className="text-danger">{formik.errors.Username}</p>
             )}
           </div>
-  
           <div className="mb-3">
             <Label>Phone</Label>
             <Input
@@ -152,11 +150,9 @@ const Register = () => {
           </div>
   
           {error && <p className="text-danger">{error}</p>}
-  
           <Button type="submit" className="btn-dark mt-3">
             Register
           </Button>
-  
           <h6 className="mt-3 text-center">
             Already have an Account?{" "}
             <Link to="/Login" id="link">

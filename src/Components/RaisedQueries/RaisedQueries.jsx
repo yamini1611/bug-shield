@@ -88,8 +88,6 @@ const RaisedQueries = () => {
 
         const SendEmail = async () => {
             const fromEmail = localStorage.getItem('email');
-
-
             try {
                 const usersResponse = await axios.get('https://localhost:44365/api/Users', {
                     headers: {
@@ -137,8 +135,6 @@ const RaisedQueries = () => {
         };
 
         try {
-
-
             const response = await axios.post('https://localhost:44365/api/AllotedQueries', allotedQuery, {
                 headers: {
                     Authorization: `Bearer ${userToken}`,
@@ -171,20 +167,14 @@ const RaisedQueries = () => {
             console.error(error);
         }
     };
-
-
     const handleViewProgress = (query) => {
         fetchQueryDetails(query.queryDetails);
     };
-
-
     const handleAllocateTicket = (query) => {
         setSelectedQuery(query);
         setCurrentPage(1);
         toggleInnerModal();
     };
-
-
     const fetchQueryDetails = async (queryDetails) => {
         try {
             const response = await axios.get('https://localhost:44365/api/AllotedQueries', {
@@ -214,7 +204,6 @@ const RaisedQueries = () => {
     return (
         <Container className='mt-5'>
             <h2>Raised Queries</h2>
-
             {/* Search Input */}
             <div className='d-flex mb-3'>
                 <h4>Search</h4>
@@ -234,7 +223,6 @@ const RaisedQueries = () => {
                     Clear
                 </Button>
             </div>
-
             <Table striped bordered hover responsive className='mb-5'>
                 <thead>
                     <tr>
@@ -288,9 +276,7 @@ const RaisedQueries = () => {
                         ))
                     )}
                 </tbody>
-       
             </Table>
-
             <div className="d-flex justify-content-center">
                 <Pagination>
                     {Array.from({ length: Math.ceil(details.length / itemsPerPage) }).map((_, index) => (
@@ -345,7 +331,7 @@ const RaisedQueries = () => {
                         >
                             <option value=''>Select a user</option>
                             {filteredUsers.map((user) => (
-                                <option key={user.id} value={user.id}>
+                                <option key={user.userid} value={user.id}>
                                     {user.username}
                                 </option>
                             ))}

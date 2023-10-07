@@ -8,7 +8,6 @@ const Errorlog = () => {
     const [perPage, setPerPage] = useState(2);
     const [searchQuery, setSearchQuery] = useState('');
     const token = localStorage.getItem('token');
-
     useEffect(() => {
         fetchDetails();
     }, []);
@@ -22,7 +21,6 @@ const Errorlog = () => {
 
         setDetails(response.data);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
     const currentItems = details.slice(indexOfFirstItem, indexOfLastItem);
@@ -35,17 +33,14 @@ const Errorlog = () => {
         setSearchQuery(e.target.value);
         setCurrentPage(1);  
     };
-
     const filteredItems = currentItems.filter((item) =>
         item.query.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
     return (
         <div className="container mt-3">
           <div className="d-flex">
             <h5 className="mt-2">Search </h5>
             <Form className="mb-3 ms-2">
-
                 <FormControl
                     type="text"
                     placeholder="Search by Query"
@@ -55,8 +50,7 @@ const Errorlog = () => {
             </Form>
             </div>  
             <h3>Error Log</h3>
-
-            <Table bordered responsive>
+            <Table bordered responsive striped>
                 <thead>
                     <tr>
                         <th>Error log Id</th>
@@ -66,14 +60,20 @@ const Errorlog = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredItems.map((query) => (
+                {filteredItems.length === 0 ? (
+                        <tr>
+                            <td colSpan="6">No data available</td>
+                        </tr>
+                    ) :(
+                    filteredItems.map((query) => (
                         <tr key={query.errorLogId}>
                             <td>{query.errorLogId}</td>
                             <td>{query.query}</td>
                             <td>{query.userId}</td>
                             <td>{query.solvedby}</td>
                         </tr>
-                    ))}
+                    ))
+                    )}
                 </tbody>
             </Table>
             <Pagination  className="justify-content-center" >

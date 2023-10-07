@@ -50,7 +50,7 @@ const ComputerInfo = (args) => {
                 Header: 'Model',
                 accessor: 'model',
             },
-            
+
             {
                 Header: 'OS',
                 accessor: 'operatingSystem',
@@ -59,7 +59,7 @@ const ComputerInfo = (args) => {
                 Header: 'Installed RAM',
                 accessor: 'installedRamgb',
             },
-            
+
 
             {
                 Header: 'Location',
@@ -179,63 +179,60 @@ const ComputerInfo = (args) => {
     };
     const fetchComputerDetails = async (computerId) => {
         try {
-          const response = await axios.get(
-            `https://localhost:44365/api/ComputerInfoes/${computerId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${userToken}`,
-              },
-            }
-          );
-      
-          if (response.status === 200) {
-            return response.data;
-          }
-        } catch (error) {
-          console.error("Error fetching computer details:", error);
-          throw error;
-        }
-      };
-      
-      const handleDeleteComputerInfo = async (computerId) => {
-        try {
-          const computerDetails = await fetchComputerDetails(computerId);
-         console.log(computerDetails);
-          const backupResponse = await axios.post(
-            "https://localhost:44365/api/ComputerInfoes/PostBackUp",
-            computerDetails,
-            {
-              headers: {
-                Authorization: `Bearer ${userToken}`,
-              },
-            }
-          );
-      
-          if (backupResponse.status === 200) {
-            const deleteResponse = await axios.delete(
-              `https://localhost:44365/api/ComputerInfoes/${computerId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${userToken}`,
-                },
-              }
+            const response = await axios.get(
+                `https://localhost:44365/api/ComputerInfoes/${computerId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                    },
+                }
             );
-      
-            if (deleteResponse.status === 200) {
-              toast.success("Deleted Successfully");
-              toast.success("posted in backup Computers");
 
-              setDeleteConfirmation(null);
-              fetchComputer();
+            if (response.status === 200) {
+                return response.data;
             }
-          }
         } catch (error) {
-          toast.error("Error: " + error.message);
-          console.error(error);
+            console.error("Error fetching computer details:", error);
+            throw error;
         }
-      };
-      
+    };
 
+    const handleDeleteComputerInfo = async (computerId) => {
+        try {
+            const computerDetails = await fetchComputerDetails(computerId);
+            console.log(computerDetails);
+            const backupResponse = await axios.post(
+                "https://localhost:44365/api/ComputerInfoes/PostBackUp",
+                computerDetails,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                    },
+                }
+            );
+            if (backupResponse.status === 200) {
+                const deleteResponse = await axios.delete(
+                    `https://localhost:44365/api/ComputerInfoes/${computerId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${userToken}`,
+                        },
+                    }
+                );
+
+                if (deleteResponse.status === 200) {
+                    toast.success("Deleted Successfully");
+                    toast.success("posted in backup Computers");
+
+                    setDeleteConfirmation(null);
+                    fetchComputer();
+                }
+            }
+        } catch (error) {
+            toast.error("Error: " + error.message);
+            console.error(error);
+        }
+    };
     return (
         <Container className="mt-5  pb-5">
             <h2>Computer Details</h2>
@@ -683,8 +680,6 @@ const ComputerInfo = (args) => {
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     )}
                 </ModalBody>
@@ -700,7 +695,6 @@ const ComputerInfo = (args) => {
                     </Button>
                 </ModalFooter>
             </Modal>
-
             {/* Delete Confirmation */}
             <Modal isOpen={!!deleteConfirmation} toggle={cancelDelete}>
                 <ModalHeader toggle={cancelDelete}>Confirm Deletion</ModalHeader>

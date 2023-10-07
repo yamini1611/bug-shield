@@ -4,7 +4,6 @@ import '../Styles/User.css';
 
 const Home = () => {
     return (
-
         <div id="homediv" className="conatiner-fluid">
             <video className="" autoPlay loop muted id="home-bg-video">
                 <source src={video} type="video/mp4"></source>
@@ -16,7 +15,6 @@ const Home = () => {
 
                 </div>
             </div>
-
         </div>
     )
 }

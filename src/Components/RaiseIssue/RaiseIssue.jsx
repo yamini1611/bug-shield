@@ -46,7 +46,6 @@ const RaiseIssue = () => {
           onHide={() => setModalShow(false)}
         />
       </div>
-
     </Container>
   )
 }
@@ -61,7 +60,6 @@ export function Modaldetails(props) {
     try {
       const currentTime = new Date().toISOString();
       const threeHoursFromNow = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
-  
       const userToken = localStorage.getItem('token'); 
       const userId = localStorage.getItem('userid');
       console.log(details);
@@ -99,7 +97,6 @@ export function Modaldetails(props) {
       <Modal.Body>
         <Form>
           <FormGroup>
-
           </FormGroup>
           <FormGroup>
             <Label for="exampleEmail">
